@@ -1,0 +1,44 @@
+Vagrant.configure("2") do |config|
+  config.vm.define "adaifiS" do |server|
+    server.vm.box = "debian/bullseye64"
+    server.vm.hostname = "PlaneS"
+    server.vm.network "private_network", ip: "192.168.56.110"
+    server.vm.provision "file", source: '~/.ssh/id_rsa.pub' , destination: "~/.ssh/me.pub"
+    server.vm.provider "virtualbox" do |vb|
+      vb.memory = 1024
+      vb.cpus = 1
+    end
+    server.vm.provision "shell", inline: <<-SHELL
+        cat ~/.ssh/me.pub >> /home/vagrant/.ssh/authorized_keys
+        apt-get update
+        apt-get install -y curl git
+        curl -sfL https://get.k3s.io | sh -s - server --node-taint CriticalAddonsOnly=true:NoExecute --write-kubeconfig-mode 644
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        sudo cat /var/lib/rancher/k3s/server/node-token > /vagrant/node-token
+        sudo kubectl version --client
+  SHELL
+  end
+
+  config.vm.define "adaifiSW" do |worker|
+    worker.vm.box = "debian/bullseye64"
+    worker.vm.hostname = "workerSW"
+    worker.vm.network "private_network", ip: "192.168.56.111"
+    worker.vm.provision "file", source: '~/.ssh/id_rsa.pub' , destination: "~/.ssh/me.pub"
+    worker.vm.provision "file", source: "./node-token", destination: "/vagrant/node-token"
+    worker.vm.provider "virtualbox" do |vb|
+      vb.memory = 1024
+      vb.cpus = 1
+    end
+    worker.vm.provision "shell", inline: <<-SHELL
+      sleep 60  
+      cat ~/.ssh/me.pub >> /home/vagrant/.ssh/authorized_keys
+      apt-get update
+      apt-get install -y curl
+      K3S_URL="https://192.168.56.110:6443"
+      K3S_TOKEN=$(cat /vagrant/node-token)
+      sudo curl -sfL https://get.k3s.io | K3S_URL=$K3S_URL K3S_TOKEN=$K3S_TOKEN sh -
+      curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      sudo kubectl version --client
+  SHELL
+  end
+end
