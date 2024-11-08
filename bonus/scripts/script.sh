@@ -14,4 +14,3 @@ kubectl port-forward svc/gitlab-webservice-default -n gitlab 8181:8181 --address
 
 kubectl get secret -n gitlab gitlab-gitlab-initial-root-password -o jsonpath="{.data.password}" | base64 --decode
 
-# glpat-3uoo1gb-C8DCM873dVrq
