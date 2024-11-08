@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: web-app-2
-        image: bharathshetty4/supermario
+        image: wil42/playground:v1
         ports:
-        - containerPort: 8080
+        - containerPort: 8888
