@@ -45,16 +45,11 @@ kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 # Wait until the Argo CD server pod is running
+sleep 10
 while [[ $(kubectl get pods -n argocd -l app.kubernetes.io/name=argocd-server -o jsonpath='{.items[0].status.phase}') != "Running" ]]; do
   echo_step "Waiting for Argo CD server pod to be in 'Running' status..."
   sleep 5
 done
-sleep 20
-
-# Apply Argo CD application
-echo_step "Applying Argo CD application..."
-kubectl apply -n argocd -f https://raw.githubusercontent.com/zenon0777/K3d-and-Argo-CD-adaifi/refs/heads/main/application.yaml
-
 
 # get password
 echo_step "Retrieving Argo CD initial admin password..."
@@ -68,7 +63,6 @@ chmod +x /usr/local/bin/argocd
 echo_step "Installation complete!"
 echo_step "You can access Argo CD UI by port-forwarding:"
 echo_step "kubectl port-forward -n argocd svc/argocd-server -n argocd 8080:443 --address 0.0.0.0"
-echo_step "kubectl port-forward service/web-app-1-service -n dev 8888:80 --address 0.0.0.0"
 
 # get machine ip
 ip=$(hostname -I | awk '{print $1}')

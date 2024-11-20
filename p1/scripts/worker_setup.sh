@@ -1,6 +1,7 @@
 #!/bin/bash
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
+apt install -y curl
 
 cat /home/vagrant/.ssh/me.pub >>/home/vagrant/.ssh/authorized_keys
 mkdir -p /root/.ssh

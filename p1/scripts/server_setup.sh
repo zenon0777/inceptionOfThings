@@ -2,6 +2,7 @@
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
+apt install -y curl
 
 cat /home/vagrant/.ssh/me.pub >>/home/vagrant/.ssh/authorized_keys
 mkdir -p /root/.ssh
@@ -16,7 +17,7 @@ curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="server \
   --node-taint CriticalAddonsOnly=true:NoExecute" sh -
 
 # Save token
-cp /var/lib/rancher/k3s/server/node-token /vagrant/node-token
+sudo cat /var/lib/rancher/k3s/server/node-token > /vagrant/node-token
 chmod 644 /vagrant/node-token
 
 sudo kubectl version --client
